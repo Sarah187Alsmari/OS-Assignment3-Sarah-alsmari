@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.Semaphore;
 
 
 // ANSI Color Codes for enhanced terminal output
@@ -32,13 +34,21 @@ class SharedResources {
     // HINT: Use ReentrantLock for mutual exclusion
     // HINT: Use Semaphore for limiting concurrent access
     
-    public static int contextSwitchCount = 0;      // Shared counter - NEEDS PROTECTION!
-    public static int completedProcessCount = 0;   // Shared counter - NEEDS PROTECTION!
-    public static long totalWaitingTime = 0;       // Shared accumulator - NEEDS PROTECTION!
+    public static int contextSwitchCount = 0;      //Shared counter - NEEDS PROTECTION!
+    public static int completedProcessCount = 0;   //Shared counter - NEEDS PROTECTION!
+    public static long totalWaitingTime = 0;       //Shared accumulator - NEEDS PROTECTION!
     public static List<String> executionLog = new ArrayList<>();  // Shared list - NEEDS PROTECTION!
     
     // TODO #1: Add a ReentrantLock(s) here to protect critical sections
     // Example: public static final ReentrantLock lock = new ReentrantLock();
+    // Lock for protecting shared counter variables
+    public static final ReentrantLock counterLock = new ReentrantLock();
+
+    // Lock for protecting the execution log list
+    public static final ReentrantLock logLock = new ReentrantLock();
+
+    // Binary semaphore for controlling CPU access
+    public static final Semaphore cpuSemaphore = new Semaphore(1);
     
     // TODO #2: Add a Semaphore to limit concurrent process execution
     // Example: public static final Semaphore cpuSemaphore = new Semaphore(1);
@@ -228,7 +238,7 @@ class Process implements Runnable {
 public class SchedulerSimulationSync {
     public static void main(String[] args) {
         // ⚠️ IMPORTANT: Put your student ID here
-        int studentID = 445052187;  // ← CHANGE THIS TO YOUR ACTUAL STUDENT ID
+        int studentID = 445052187 ;  // ← CHANGE THIS TO YOUR ACTUAL STUDENT ID .
         
         Random random = new Random(studentID);
         
