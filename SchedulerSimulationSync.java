@@ -188,7 +188,7 @@ class Process implements Runnable {
         } finally {
             // TODO #4: Release CPU semaphore here
             // Always release in finally block to prevent deadlocks!
-            
+
             // Release CPU permit after process execution
             SharedResources.cpuSemaphore.release(); 
         }
@@ -210,6 +210,10 @@ class Process implements Runnable {
     
     public void runToCompletion() {
         // TODO: Similar synchronization needed here
+
+        // Acquire CPU permit before running the last process to completion
+        SharedResources.cpuSemaphore.acquireUninterruptibly();
+
         try {
             System.out.println(Colors.BRIGHT_CYAN + "  ⚡ " + Colors.BOLD + Colors.CYAN + name + 
                               Colors.RESET + Colors.BRIGHT_CYAN + " is the last process, running to completion" + 
@@ -228,6 +232,10 @@ class Process implements Runnable {
         } catch (InterruptedException e) {
             System.out.println(Colors.RED + "  ✗ " + name + " was interrupted." + Colors.RESET);
         }
+        finally {
+        // Release CPU permit after running to completion
+        SharedResources.cpuSemaphore.release();
+    }
     }
     
     public String getName() {
